@@ -126,7 +126,7 @@ export async function buildApp(deps: AppDeps) {
       info: {
         title: 'Miroir Backend API',
         description:
-          'Backend-only MVP slice: demo identity, strategy confirmation/versioning, manual trades/evidence, deterministic reviews, stats and progress.',
+          'Miroir API. Quick start: [create a demo session](#/Auth/post_v1_demo_session), copy the returned Miroir token, then click Authorize and paste that token. Jump to [Roqqu status](#/Integrations/get_v1_integrations_roqqu_status), [balances](#/Integrations/get_v1_integrations_roqqu_balances), or [history](#/Integrations/get_v1_integrations_roqqu_history). Live Roqqu reads require ROQQU_STAGING_API_KEY in the backend environment only; do not paste the Roqqu key into Authorize. These Roqqu operations are read-only.',
         version: '0.1.0',
       },
       components: {
