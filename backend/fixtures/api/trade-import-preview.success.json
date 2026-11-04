@@ -1,0 +1,25 @@
+{
+  "import_id": "8fceef74-b608-4921-bdbc-b79c4f0d871e",
+  "status": "ready",
+  "row_count": 1,
+  "rows": [
+    {
+      "row_number": 2,
+      "strategy_version_id": "203f857c-830c-47e7-87ec-df0d8338188d",
+      "symbol": "AAPL",
+      "direction": "long",
+      "quantity": 10,
+      "entry_price": 100,
+      "exit_price": 104,
+      "fees": 2,
+      "currency": "USD",
+      "opened_at": "2026-10-05T09:15:00.000Z",
+      "closed_at": "2026-10-05T11:00:00.000Z",
+      "initial_risk_amount": 80,
+      "evidence": [
+        { "kind": "note", "payload": { "setup_note": "Breakout, then retest" } },
+        { "kind": "state", "payload": { "emotional_state": "calm" } }
+      ]
+    }
+  ]
+}

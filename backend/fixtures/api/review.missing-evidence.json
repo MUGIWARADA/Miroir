@@ -1,0 +1,120 @@
+{
+  "cached": false,
+  "review": {
+    "id": "6f646882-5f53-4444-bc04-635806277d11",
+    "identity_id": "c7549069-4957-4436-b281-19837edd6a3e",
+    "trade_id": "c8cbdf44-f849-4a3d-8b5a-1a2f7e5083d4",
+    "strategy_version_id": "203f857c-830c-47e7-87ec-df0d8338188d",
+    "input_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "scoring_version": "demo-v2",
+    "decision_quality_score": "100.00",
+    "coverage_pct": "65.00",
+    "result": {
+      "request_id": "req_example_456",
+      "scoring_version": "demo-v2",
+      "strategy_version_id": "203f857c-830c-47e7-87ec-df0d8338188d",
+      "trade_id": "c8cbdf44-f849-4a3d-8b5a-1a2f7e5083d4",
+      "decision_quality_score": 100,
+      "coverage_pct": 65,
+      "dimensions": [
+        {
+          "dimension": "risk",
+          "status": "followed",
+          "score_pct": 100,
+          "weight": 30,
+          "assessable_weight": 30,
+          "earned_weight": 30,
+          "rules": [
+            {
+              "rule_id": "risk-limit",
+              "dimension": "risk",
+              "label": "Risk no more than 100 USD",
+              "status": "followed",
+              "reason": "Initial risk 80 is within the 100 limit."
+            }
+          ]
+        },
+        {
+          "dimension": "sizing",
+          "status": "followed",
+          "score_pct": 100,
+          "weight": 20,
+          "assessable_weight": 20,
+          "earned_weight": 20,
+          "rules": [
+            {
+              "rule_id": "size-limit",
+              "dimension": "sizing",
+              "label": "Position within limit",
+              "status": "followed",
+              "reason": "Position notional 1000 is within the 10000 limit."
+            }
+          ]
+        },
+        {
+          "dimension": "plan",
+          "status": "cannot_assess",
+          "score_pct": null,
+          "weight": 25,
+          "assessable_weight": 0,
+          "earned_weight": 0,
+          "rules": [
+            {
+              "rule_id": "setup-note",
+              "dimension": "plan",
+              "label": "Record a setup note",
+              "status": "cannot_assess",
+              "reason": "Evidence field 'setup_note' is missing; not counted as a breach."
+            }
+          ]
+        },
+        {
+          "dimension": "timing",
+          "status": "followed",
+          "score_pct": 100,
+          "weight": 15,
+          "assessable_weight": 15,
+          "earned_weight": 15,
+          "rules": [
+            {
+              "rule_id": "trading-schedule",
+              "dimension": "timing",
+              "label": "Allowed trading hours",
+              "status": "followed",
+              "reason": "Trade was opened inside the strategy's allowed trading schedule."
+            }
+          ]
+        },
+        {
+          "dimension": "emotion",
+          "status": "cannot_assess",
+          "score_pct": null,
+          "weight": 10,
+          "assessable_weight": 0,
+          "earned_weight": 0,
+          "rules": [
+            {
+              "rule_id": "calm-state",
+              "dimension": "emotion",
+              "label": "Record emotional state",
+              "status": "cannot_assess",
+              "reason": "Evidence field 'emotional_state' is missing; not counted as a breach."
+            }
+          ]
+        }
+      ],
+      "coaching": {
+        "mode": "rule_based",
+        "summary": "Decision Quality 100/100. You followed every rule that could be assessed.",
+        "actions": [
+          "Add evidence so these can be assessed next time: Record emotional state, Record a setup note.",
+          "Add evidence for rules that could not be assessed to raise coverage."
+        ]
+      },
+      "warnings": [
+        "Coverage is 65.0%. Missing evidence or rules were not treated as breaches."
+      ]
+    },
+    "created_at": "2026-11-03T12:00:00.000Z"
+  }
+}

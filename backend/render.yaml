@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: miroir-api
+    runtime: node
+    plan: 0.5c-512mb
+    buildCommand: npm ci --include=dev && npm run build
+    preDeployCommand: node dist/db/migrate-cli.js
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: TRUST_PROXY
+        value: 'true'
+      - key: DEMO_AUTH_ENABLED
+        value: 'true'
+      - key: CORS_ORIGIN
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: MIGRATION_DATABASE_URL
+        sync: false
+      - key: SCORING_SERVICE_URL
+        value: http://miroir-scoring:10000
+      - key: SCORING_SERVICE_TOKEN
+        generateValue: true
+
+  - type: pserv
+    name: miroir-scoring
+    runtime: python
+    plan: 0.5c-512mb
+    buildCommand: python -m pip install -r scoring/requirements.txt
+    startCommand: python -m uvicorn scoring.app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SCORING_SERVICE_TOKEN
+        fromService:
+          name: miroir-api
+          type: web
+          envVarKey: SCORING_SERVICE_TOKEN

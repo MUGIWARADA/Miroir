@@ -1,0 +1,13 @@
+# Generated dependencies and build/runtime artifacts
+**/node_modules/
+**/dist/
+backend/.data/
+backend/.venv*/
+**/__pycache__/
+**/.pytest_cache/
+.playwright-cli/
+
+# Local environment files; keep safe templates tracked
+**/.env
+**/.env.*
+!**/.env.example

@@ -1,0 +1,22 @@
+{
+  "stats": {
+    "currency": "USD",
+    "timezone": "UTC",
+    "sample_size": 0,
+    "wins": 0,
+    "losses": 0,
+    "breakeven": 0,
+    "win_rate": null,
+    "net_realized_pnl": 0,
+    "gross_profit": 0,
+    "gross_loss": 0,
+    "total_fees": 0,
+    "average_win": null,
+    "average_loss": null,
+    "payoff_ratio": null,
+    "profit_factor": null,
+    "expectancy": null,
+    "average_r_multiple": null,
+    "cumulative_realized_pnl_curve": []
+  }
+}
