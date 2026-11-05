@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from './api';
 
 const DIMENSION_LABELS = {
@@ -16,6 +17,7 @@ const getRuleDescription = (rule) => {
 };
 
 export default function Strategy() {
+  const navigate = useNavigate();
   const [strategy, setStrategy] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -41,11 +43,14 @@ export default function Strategy() {
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto text-text-primary pb-24">
       
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">{strategy.name}</h1>
+      {/* Header with Back Button */}
+      <div className="flex flex-row items-center mb-8 gap-4">
+        <button onClick={() => navigate('/profile')} className="w-10 h-10 rounded-full bg-surface-elevated border border-border-subtle flex items-center justify-center hover:text-brand-primary transition-colors">
+          <span className="material-symbols-outlined">arrow_back</span>
+        </button>
+        <div>
+          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight mb-1">{strategy.name}</h1>
         </div>
-        <p className="text-sm text-text-secondary">Your confirmed rulebook. All trades are audited against these rules.</p>
       </div>
 
       <div className="space-y-6">

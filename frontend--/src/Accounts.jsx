@@ -24,25 +24,22 @@ export default function Accounts() {
     }, 1200);
   };
 
-  const handleDisconnect = () => {
+  const handleDeleteAccount = () => {
     setIsConnected(false);
-    localStorage.removeItem('account_linked'); 
+    localStorage.removeItem('account_linked');
   };
 
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto text-text-primary pb-24 relative">
       
-      <div className="flex flex-row justify-between items-center mb-8 gap-4">
+      <div className="flex flex-row items-center mb-8 gap-4">
+        <button onClick={() => navigate('/profile')} className="w-10 h-10 rounded-full bg-surface-elevated border border-border-subtle flex items-center justify-center hover:text-brand-primary transition-colors">
+          <span className="material-symbols-outlined">arrow_back</span>
+        </button>
         <div>
           <h1 className="text-2xl md:text-3xl font-semibold tracking-tight mb-1 text-white">Accounts</h1>
           <p className="text-sm text-text-secondary hidden md:block">Manage your connected platforms.</p>
         </div>
-        
-        {isConnected && (
-          <button onClick={() => setShowModal(true)} className="px-4 py-2 rounded-lg bg-surface-elevated border border-border-subtle text-sm font-medium hover:text-brand-primary transition-all flex items-center gap-2 shrink-0 shadow-sm">
-            <span className="material-symbols-outlined text-[18px]">add</span> Add Account
-          </button>
-        )}
       </div>
 
       {!isConnected ? (
@@ -73,7 +70,14 @@ export default function Accounts() {
                 </div>
               </div>
             </div>
-            <button onClick={handleDisconnect} className="text-xs text-text-secondary hover:text-adherence-broken transition-colors">Disconnect</button>
+
+            <button 
+              onClick={handleDeleteAccount} 
+              className="w-9 h-9 rounded-full bg-adherence-broken/10 border border-adherence-broken/20 flex items-center justify-center text-adherence-broken hover:bg-adherence-broken hover:text-white transition-all shrink-0"
+              title="Delete Account"
+            >
+              <span className="material-symbols-outlined text-[18px]">delete</span>
+            </button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-border-subtle">
             <div><p className="text-[10px] text-text-tertiary uppercase tracking-wider mb-1">Account ID</p><p className="text-sm font-mono text-white">#84920412</p></div>
@@ -126,7 +130,7 @@ export default function Accounts() {
             {isConnecting && (
               <div className="absolute inset-0 bg-[#0B0F19]/80 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center z-10">
                 <span className="material-symbols-outlined animate-spin text-4xl text-brand-primary mb-4">progress_activity</span>
-                <p className="text-sm font-medium text-white">Connecting to Roqqu Sandbox...</p>
+                <p className="text-sm font-medium text-white">Connecting...</p>
               </div>
             )}
           </div>

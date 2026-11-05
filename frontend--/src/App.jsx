@@ -35,7 +35,6 @@ function AppShell({ children }) {
 
   return (
     <div className="flex h-screen bg-canvas text-text-primary font-sans relative">
-      {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-surface-card border-r border-border-subtle p-4 shrink-0 backdrop-blur-xl z-40">
         <div className="mb-8 px-2 mt-2"><Logo /></div>
         <nav className="flex flex-col gap-2">
@@ -50,23 +49,18 @@ function AppShell({ children }) {
 
       <main className="flex-1 overflow-y-auto pb-24 md:pb-0">{children}</main>
 
-      {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-0 w-full bg-[#0B0F19] border-t border-border-subtle flex justify-around items-end pb-safe pt-2 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+      <nav className="md:hidden fixed bottom-0 w-full bg-surface-card/80 backdrop-blur-xl border-t border-border-subtle flex justify-around items-end pb-safe pt-2 z-50">
         {navItems.map((item) => {
           const isActive = location.pathname.startsWith(item.path);
           return (
             <Link key={item.path} to={item.path} className="relative flex flex-col items-center justify-end h-14 w-16 pb-1">
-              {isActive && (
-                <div className="absolute -top-5 w-14 h-14 rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary flex items-center justify-center shadow-lg shadow-brand-primary/40 border border-white/10 z-10">
-                  <span className="material-symbols-outlined text-white text-[28px]">{item.icon}</span>
-                </div>
-              )}
-              {!isActive && (
-                <div className="w-8 h-8 flex items-center justify-center text-text-tertiary mb-1">
-                  <span className="material-symbols-outlined text-[24px]">{item.icon}</span>
-                </div>
-              )}
-              <span className={`text-[10px] ${isActive ? 'text-brand-primary font-medium mt-4' : 'text-text-tertiary'}`}>{item.label}</span>
+              <div className={`absolute -top-5 w-14 h-14 rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary flex items-center justify-center shadow-lg shadow-brand-primary/40 border border-white/10 z-10 transition-all duration-300 ease-out ${isActive ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-50 translate-y-4 pointer-events-none'}`}>
+                <span className="material-symbols-outlined text-white text-[28px]">{item.icon}</span>
+              </div>
+              <div className={`w-8 h-8 flex items-center justify-center text-text-tertiary mb-1 transition-all duration-300 ${isActive ? 'opacity-0 scale-50' : 'opacity-100 scale-100'}`}>
+                <span className="material-symbols-outlined text-[24px]">{item.icon}</span>
+              </div>
+              <span className={`text-[10px] transition-colors duration-300 ${isActive ? 'text-brand-primary font-medium mt-4' : 'text-text-tertiary'}`}>{item.label}</span>
             </Link>
           );
         })}
