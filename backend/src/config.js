@@ -7,6 +7,10 @@ export function loadConfig(env = process.env) {
   const nodeEnv = env.NODE_ENV || 'development';
   const emailDeliveryMode = env.EMAIL_DELIVERY_MODE || (nodeEnv === 'production' ? 'smtp' : 'console');
   if (!['console', 'smtp'].includes(emailDeliveryMode)) throw new Error('EMAIL_DELIVERY_MODE must be console or smtp.');
+  const openRouterTimeout = Number(env.OPENROUTER_TIMEOUT_SECONDS || 15);
+  if (!Number.isFinite(openRouterTimeout) || openRouterTimeout < 1 || openRouterTimeout > 120) {
+    throw new Error('OPENROUTER_TIMEOUT_SECONDS must be a number between 1 and 120.');
+  }
   return {
     dataMode,
     port,
@@ -24,6 +28,10 @@ export function loadConfig(env = process.env) {
     smtpUser: env.SMTP_USER || '',
     smtpPassword: env.SMTP_PASSWORD || '',
     smtpFrom: env.SMTP_FROM || '',
-    roqquStagingApiKey: env.ROQQU_STAGING_API_KEY || ''
+    roqquStagingApiKey: env.ROQQU_STAGING_API_KEY || '',
+    openRouterApiKey: env.OPENROUTER_API_KEY || '',
+    openRouterModel: env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-001',
+    openRouterBaseUrl: (env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1').replace(/\/$/, ''),
+    openRouterTimeoutSeconds: openRouterTimeout
   };
 }

@@ -4,6 +4,8 @@ import Strategy from './Strategy';
 import Accounts from './Accounts';
 import ReviewsList from './ReviewList';
 import TradeReview from './TradeReview';
+import Patterns from './Patterns';
+import ProgressCompanion from './ProgressCompanion';
 import Profile from './Profile';
 import Entry from './Entry';
 
@@ -28,7 +30,10 @@ function AppShell({ children }) {
   const location = useLocation();
   
   const navItems = [
+    { path: '/plan', label: 'Strategy', icon: 'psychology' },
     { path: '/reviews', label: 'Reviews', icon: 'history_edu' },
+    { path: '/intelligence', label: 'Patterns', icon: 'insights' },
+    { path: '/companion', label: 'Companion', icon: 'chat' },
     { path: '/dashboard', label: 'Dashboard', icon: 'query_stats' },
     { path: '/profile', label: 'Profile', icon: 'person' },
   ];
@@ -82,6 +87,8 @@ export default function App() {
               <Route path="/accounts" element={<Accounts />} />
               <Route path="/reviews" element={<ReviewsList />} />
               <Route path="/reviews/:id" element={<TradeReview />} />
+              <Route path="/intelligence" element={<Patterns />} />
+              <Route path="/companion" element={<ProgressCompanion />} />
               <Route path="/profile" element={<Profile />} />
             </Routes>
           </AppShell>

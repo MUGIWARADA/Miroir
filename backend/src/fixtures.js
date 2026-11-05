@@ -1,6 +1,17 @@
 export const DEMO_STRATEGY = {
   id: '03ecfa74-f489-4ac8-93dc-325f72544eb9',
   name: 'Demo Breakout Plan',
+  description: 'Demo Breakout Plan for disciplined execution',
+  status: 'confirmed',
+  markets: ['BTC/USDT', 'ETH/USDT', 'SOL/USDT'],
+  timeframes: ['15m', '1h', '4h'],
+  entry_conditions: ['Breakout above key horizontal resistance on 4h timeframe with volume spike'],
+  stop_loss_method: { type: 'swing_low', description: 'Placed below previous 1h swing low' },
+  exit_plan: { type: 'trailing_or_target', description: 'Take 50% at 2R, trail remainder behind 1h structure' },
+  risk_rules: [{ id: 'risk-limit', dimension: 'risk', label: 'Risk at most 100 USD per trade', check: { type: 'max_risk_amount', amount: 100 } }],
+  position_sizing_rules: [{ id: 'size-limit', dimension: 'sizing', label: 'Position notional at most 10000 USD', check: { type: 'max_notional', amount: 10000 } }],
+  other_restrictions: ['No new entries 15 minutes before or after high-impact macroeconomic news'],
+  preferences: ['Prefer trading during London / New York overlap session (13:00 - 16:00 UTC)'],
   draft_rules: [
     { id: 'risk-limit', dimension: 'risk', label: 'Risk at most 100 USD per trade', check: { type: 'max_risk_amount', amount: 100 } },
     { id: 'size-limit', dimension: 'sizing', label: 'Position notional at most 10000 USD', check: { type: 'max_notional', amount: 10000 } },
@@ -13,7 +24,8 @@ export const DEMO_STRATEGY = {
     end_time: '16:00',
     timezone: 'UTC'
   },
-  current_version_id: '2f580be1-6424-492e-80f3-306f04677d2a'
+  current_version_id: '2f580be1-6424-492e-80f3-306f04677d2a',
+  version_number: 1
 };
 
 export const DEMO_STATS = {
