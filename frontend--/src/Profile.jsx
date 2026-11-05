@@ -45,8 +45,7 @@ export default function Profile() {
 
       {identity && <>
         <div className="glass-card p-6 mb-6 flex flex-col md:flex-row items-start md:items-center gap-6 relative overflow-hidden">
-          <div className="absolute -right-10 -top-10 w-40 h-40 bg-brand-primary/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center shrink-0 shadow-lg shadow-brand-primary/30">
+          <div className="w-20 h-20 rounded-2xl bg-surface-elevated border border-border-subtle flex items-center justify-center shrink-0">
             <span className="material-symbols-outlined text-white text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>person</span>
           </div>
           <div className="flex-1 min-w-0">

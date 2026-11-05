@@ -53,10 +53,7 @@ export default function Dashboard() {
   const scoreData = [{ name: 'Score', value: hasDqScore ? displayDqScore : 0, fill: 'url(#gradient)' }];
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto text-text-primary pb-24 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-primary/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand-secondary/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
-
+    <div className="p-4 md:p-8 max-w-7xl mx-auto text-text-primary pb-24 relative">
       <header className="flex flex-row justify-between items-center mb-8 gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-1 text-white">Dashboard</h1>
@@ -73,7 +70,7 @@ export default function Dashboard() {
             <span className="text-xs text-text-secondary">Roqqu · Read-only</span>
           </button>
         ) : (
-          <button onClick={() => navigate('/accounts')} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary text-white font-semibold text-sm shadow-lg shadow-brand-primary/25 hover:opacity-90 transition-all flex items-center gap-2 shrink-0">
+          <button onClick={() => navigate('/accounts')} className="px-5 py-2.5 rounded-xl bg-brand-primary text-white font-semibold text-sm hover:bg-blue-600 transition-all flex items-center gap-2 shrink-0">
             <span className="material-symbols-outlined text-[18px]">add_link</span>Accounts
           </button>
         )}
@@ -94,7 +91,7 @@ export default function Dashboard() {
                   <defs>
                     <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stopColor="#3B82F6" />
-                      <stop offset="100%" stopColor="#8B5CF6" />
+                      <stop offset="100%" stopColor="#3B82F6" />
                     </linearGradient>
                   </defs>
                   <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
@@ -124,22 +121,22 @@ export default function Dashboard() {
               <span className="material-symbols-outlined text-[16px] text-brand-tertiary">analytics</span>
               Performance Metrics
             </h2>
-            <span className="text-[10px] text-text-tertiary bg-[#0B0F19]/50 px-2 py-1 rounded border border-border-subtle">Trades: {sampleSize}</span>
+            <span className="text-[10px] text-text-tertiary bg-surface-elevated px-2 py-1 rounded border border-border-subtle">Trades: {sampleSize}</span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-[#0B0F19]/40 rounded-xl p-4 border border-border-subtle/50">
+            <div className="bg-surface-elevated rounded-xl p-4 border border-border-subtle">
               <p className="text-[10px] text-text-secondary mb-1 uppercase tracking-wider">Net P&L</p>
               <p className="text-xl font-bold tabular-nums text-white">${netPnl.toFixed(2)}</p>
             </div>
-            <div className="bg-[#0B0F19]/40 rounded-xl p-4 border border-border-subtle/50">
+            <div className="bg-surface-elevated rounded-xl p-4 border border-border-subtle">
               <p className="text-[10px] text-text-secondary mb-1 uppercase tracking-wider">Win Rate</p>
               <p className="text-xl font-bold tabular-nums text-white">{winRate.toFixed(1)}%</p>
             </div>
-            <div className="bg-[#0B0F19]/40 rounded-xl p-4 border border-border-subtle/50">
+            <div className="bg-surface-elevated rounded-xl p-4 border border-border-subtle">
               <p className="text-[10px] text-text-secondary mb-1 uppercase tracking-wider">Profit Factor</p>
               <p className="text-xl font-bold tabular-nums text-white">{profitFactor.toFixed(2)}</p>
             </div>
-            <div className="bg-[#0B0F19]/40 rounded-xl p-4 border border-border-subtle/50">
+            <div className="bg-surface-elevated rounded-xl p-4 border border-border-subtle">
               <p className="text-[10px] text-text-secondary mb-1 uppercase tracking-wider">Expectancy</p>
               <p className="text-xl font-bold tabular-nums text-white">${expectancy.toFixed(2)}</p>
             </div>
@@ -158,14 +155,14 @@ export default function Dashboard() {
               <AreaChart data={pnlData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorPnl" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="date" stroke="rgba(255,255,255,0.1)" tick={{fill: '#94A3B8', fontSize: 12}} axisLine={false} tickLine={false} />
                 <YAxis stroke="rgba(255,255,255,0.1)" tick={{fill: '#94A3B8', fontSize: 12}} axisLine={false} tickLine={false} />
                 <Tooltip contentStyle={{ backgroundColor: '#1E293B', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} />
-                <Area type="monotone" dataKey="pnl" stroke="#8B5CF6" strokeWidth={3} fillOpacity={1} fill="url(#colorPnl)" />
+                <Area type="monotone" dataKey="pnl" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorPnl)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -182,7 +179,7 @@ export default function Dashboard() {
                 <span className="text-xs text-text-secondary">Coverage</span>
                 <span className="text-sm font-semibold text-white">{Math.round(progress?.average_coverage_pct || 0)}%</span>
               </div>
-              <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+              <div className="w-full bg-surface-elevated h-1.5 rounded-full overflow-hidden">
                 <div className="h-full bg-brand-tertiary" style={{ width: `${progress?.average_coverage_pct || 0}%` }}></div>
               </div>
             </div>

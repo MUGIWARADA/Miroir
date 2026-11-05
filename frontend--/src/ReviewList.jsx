@@ -38,13 +38,13 @@ export default function ReviewsList() {
           <span className="material-symbols-outlined text-5xl text-brand-primary mb-4">history_edu</span>
           <h2 className="text-xl font-semibold mb-2 text-white">No Trades to Review</h2>
           <p className="text-sm text-text-secondary max-w-md mx-auto mb-6">There are no trades saved for this identity yet. Roqqu ledger activity is never imported as canonical trades. Manual trade entry remains a separate workflow and is not present in this UI snapshot.</p>
-          <button onClick={() => navigate('/plan')} className="px-6 py-2.5 rounded-lg bg-brand-primary text-white font-semibold shadow-lg hover:bg-blue-600 transition-all flex items-center gap-2">
+          <button onClick={() => navigate('/plan')} className="px-6 py-2.5 rounded-lg bg-brand-primary text-white font-semibold hover:bg-blue-600 transition-all flex items-center gap-2">
             <span className="material-symbols-outlined text-[18px]">psychology</span>View Strategy
           </button>
         </div>
       ) : (
         <div className="glass-card overflow-hidden">
-          <div className="p-4 border-b border-border-subtle bg-[#0B0F19]/50 flex justify-between items-center">
+          <div className="p-4 border-b border-border-subtle bg-surface-card flex justify-between items-center">
             <h2 className="text-sm font-semibold text-white">Recent Audits</h2>
             <span className="text-xs text-text-tertiary">{trades.length} Trade{trades.length === 1 ? '' : 's'}</span>
           </div>
@@ -54,7 +54,7 @@ export default function ReviewsList() {
               const date = trade.closed_at || trade.opened_at || trade.created_at;
               const scoreStyle = score === null ? 'bg-surface-elevated text-text-secondary' : score >= 75 ? 'bg-adherence-followed/10 text-adherence-followed' : score >= 50 ? 'bg-adherence-indeterminate/10 text-adherence-indeterminate' : 'bg-adherence-broken/10 text-adherence-broken';
               return (
-                <button type="button" key={trade.id} onClick={() => navigate(`/reviews/${trade.id}`)} className="w-full p-4 flex items-center justify-between text-left hover:bg-white/5 transition-colors">
+                <button type="button" key={trade.id} onClick={() => navigate(`/reviews/${trade.id}`)} className="w-full p-4 flex items-center justify-between text-left hover:bg-surface-elevated transition-colors">
                   <div className="flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm ${scoreStyle}`}>{score === null ? '—' : score}</div>
                     <div>

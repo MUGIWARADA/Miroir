@@ -27,7 +27,6 @@ export default function Entry() {
     setIsBusy(true); setError(''); setNotice('');
     try {
       await api.createDemoSession();
-      // Verify the saved session before navigating, including the custom-header fallback used by preview proxies.
       await api.getIdentity();
       navigate('/dashboard');
     } catch (err) {
@@ -71,14 +70,10 @@ export default function Entry() {
 
   return (
     <div className="min-h-screen bg-canvas flex flex-col relative overflow-hidden text-text-primary">
-      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-brand-primary/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-brand-secondary/10 rounded-full blur-[120px] pointer-events-none" />
-
       <main className="flex-1 flex flex-col items-center justify-center p-6 z-10">
-        <div className="w-full max-w-md glass-card p-8 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+        <div className="w-full max-w-md glass-card p-8 relative overflow-hidden">
           <div className="flex flex-col items-center text-center mb-8">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-secondary flex items-center justify-center mb-4 shadow-lg shadow-brand-primary/20">
+            <div className="w-20 h-20 rounded-2xl bg-surface-elevated border border-border-subtle flex items-center justify-center mb-4">
               <span className="material-symbols-outlined text-white" style={{ fontSize: '56px', fontVariationSettings: "'FILL' 0" }}>neurology</span>
             </div>
             <h1 className="text-3xl font-bold tracking-tight text-white mb-2">{title}</h1>
@@ -92,7 +87,7 @@ export default function Entry() {
 
           {activeView === 'home' && (
             <div className="space-y-3">
-              <button onClick={handleStartDemo} disabled={isBusy} className="w-full py-4 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary hover:opacity-90 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-primary/25 disabled:opacity-70">
+              <button onClick={handleStartDemo} disabled={isBusy} className="w-full py-4 rounded-xl bg-brand-primary hover:bg-blue-600 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 disabled:opacity-70">
                 {isBusy ? <><span className="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>Starting…</> : <>Start Demo<span className="material-symbols-outlined text-[18px]">arrow_forward</span></>}
               </button>
               <button onClick={() => { setView('login'); setError(''); setNotice(''); }} className="w-full py-3 rounded-xl bg-surface-elevated border border-border-subtle hover:border-brand-primary text-white font-semibold text-sm transition-all">Sign in</button>
@@ -102,10 +97,10 @@ export default function Entry() {
 
           {(activeView === 'login' || activeView === 'register') && (
             <form onSubmit={activeView === 'login' ? handleLogin : handleRegister} className="space-y-4">
-              {activeView === 'register' && <label className="block text-xs text-text-secondary">Display name<input value={displayName} onChange={(e) => setDisplayName(e.target.value)} autoComplete="name" maxLength={80} className="mt-2 w-full rounded-lg bg-[#0B0F19]/70 border border-border-subtle px-3 py-3 text-sm text-white outline-none focus:border-brand-primary" placeholder="Your name" /></label>}
-              <label className="block text-xs text-text-secondary">Email<input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" maxLength={254} className="mt-2 w-full rounded-lg bg-[#0B0F19]/70 border border-border-subtle px-3 py-3 text-sm text-white outline-none focus:border-brand-primary" placeholder="you@example.com" /></label>
-              <label className="block text-xs text-text-secondary">Password<input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={activeView === 'login' ? 'current-password' : 'new-password'} minLength={activeView === 'register' ? 12 : undefined} maxLength={128} className="mt-2 w-full rounded-lg bg-[#0B0F19]/70 border border-border-subtle px-3 py-3 text-sm text-white outline-none focus:border-brand-primary" placeholder={activeView === 'register' ? 'At least 12 characters' : 'Your password'} /></label>
-              <button type="submit" disabled={isBusy} className="w-full py-3.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary text-white font-semibold text-sm shadow-lg shadow-brand-primary/25 disabled:opacity-70">{isBusy ? 'Please wait…' : activeView === 'login' ? 'Sign in' : 'Create account'}</button>
+              {activeView === 'register' && <label className="block text-xs text-text-secondary">Display name<input value={displayName} onChange={(e) => setDisplayName(e.target.value)} autoComplete="name" maxLength={80} className="mt-2 w-full rounded-lg bg-surface-elevated border border-border-subtle px-3 py-3 text-sm text-white outline-none focus:border-brand-primary" placeholder="Your name" /></label>}
+              <label className="block text-xs text-text-secondary">Email<input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" maxLength={254} className="mt-2 w-full rounded-lg bg-surface-elevated border border-border-subtle px-3 py-3 text-sm text-white outline-none focus:border-brand-primary" placeholder="you@example.com" /></label>
+              <label className="block text-xs text-text-secondary">Password<input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={activeView === 'login' ? 'current-password' : 'new-password'} minLength={activeView === 'register' ? 12 : undefined} maxLength={128} className="mt-2 w-full rounded-lg bg-surface-elevated border border-border-subtle px-3 py-3 text-sm text-white outline-none focus:border-brand-primary" placeholder={activeView === 'register' ? 'At least 12 characters' : 'Your password'} /></label>
+              <button type="submit" disabled={isBusy} className="w-full py-3.5 rounded-xl bg-brand-primary hover:bg-blue-600 text-white font-semibold text-sm disabled:opacity-70">{isBusy ? 'Please wait…' : activeView === 'login' ? 'Sign in' : 'Create account'}</button>
               {activeView === 'login' && error && error.toLowerCase().includes('verify') && <button type="button" onClick={handleResend} disabled={isBusy || !email} className="w-full py-2 text-xs text-brand-primary hover:text-white disabled:opacity-50">Resend verification email</button>}
               <button type="button" onClick={() => { setView(view === 'login' ? 'register' : 'login'); setError(''); setNotice(''); }} className="w-full py-2 text-xs text-text-secondary hover:text-white">{view === 'login' ? 'New to Miroir? Create an account' : 'Already registered? Sign in'}</button>
             </form>

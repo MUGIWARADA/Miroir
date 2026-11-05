@@ -37,8 +37,6 @@ export default function Strategy() {
 
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto text-text-primary pb-24">
-      
-      {/* Header with Back Button */}
       <div className="flex flex-row items-center mb-8 gap-4">
         <button onClick={() => navigate('/profile')} className="w-10 h-10 rounded-full bg-surface-elevated border border-border-subtle flex items-center justify-center hover:text-brand-primary transition-colors">
           <span className="material-symbols-outlined">arrow_back</span>
@@ -57,7 +55,7 @@ export default function Strategy() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {strategy.draft_rules.map((rule) => (
-              <div key={rule.id} className="p-4 rounded-xl bg-[#0B0F19]/40 border border-border-subtle">
+              <div key={rule.id} className="p-4 rounded-xl bg-surface-elevated border border-border-subtle">
                 <span className="text-[10px] text-brand-primary font-bold uppercase tracking-wider">
                   {DIMENSION_LABELS[rule.dimension] || rule.dimension}
                 </span>
