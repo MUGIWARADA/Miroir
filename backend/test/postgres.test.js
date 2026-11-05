@@ -57,8 +57,11 @@ test('Postgres mode persists demo data, verified users, sessions, and per-user R
     assert.equal(me.json().identity.email, testEmail);
     assert.equal(Object.hasOwn(me.json().identity, 'password_hash'), false);
 
-    const sessionHash = await pool.query('SELECT token_hash FROM sessions WHERE identity_id=$1 ORDER BY created_at DESC LIMIT 1', [userSession.identity.id]);
-    assert.equal(sessionHash.rows[0].token_hash, hashToken(userSession.token));
+    // A login session was created after email verification; select by the exact token hash,
+    // not by created_at ordering (timestamps can tie at database precision).
+    const expectedSessionHash = hashToken(userSession.token);
+    const sessionHash = await pool.query('SELECT token_hash FROM sessions WHERE identity_id=$1 AND token_hash=$2', [userSession.identity.id, expectedSessionHash]);
+    assert.equal(sessionHash.rows[0]?.token_hash, expectedSessionHash);
     assert.notEqual(sessionHash.rows[0].token_hash, userSession.token);
 
     const connection = await app.inject({ method: 'POST', url: '/v1/roqqu/connect', headers: userHeaders, payload: { account_email: 'other@example.com' } });
