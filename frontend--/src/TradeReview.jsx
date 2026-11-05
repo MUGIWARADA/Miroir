@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from './api';
 
@@ -14,19 +14,16 @@ export default function TradeReview() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchReview = async () => {
-      try {
-        const data = await api.requestReview(id);
-        setReview(data.review.result);
-      } catch (err) {
-        setError(err?.message || "Failed to generate review.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (id) fetchReview();
+    let active = true;
+    if (!id) return undefined;
+    api.requestReview(id)
+      .then((data) => { if (active) setReview(data?.review?.result || null); })
+      .catch((err) => { if (active) setError(err?.message || 'Failed to generate review.'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [id]);
 
+  if (!id) return <div className="p-8 text-adherence-broken text-center">A trade ID is required.</div>;
   if (loading) return <div className="p-8 text-text-primary flex flex-col items-center justify-center h-screen">Loading audit...</div>;
   if (error) return <div className="p-8 text-adherence-broken text-center">{error}</div>;
   if (!review) return <div className="p-8 text-text-secondary text-center">No review data found.</div>;

@@ -1,5 +1,7 @@
 # Roqqu RAS API: readable quick start
 
+> Historical quick start for the previous backend API. Current route behavior and local-only safety restrictions are documented in the root README and `backend/README.md`; do not follow old startup commands without checking those current files.
+
 This guide is for a developer or account owner who wants to see how the Miroir backend reads Roqqu staging data. **There is no Roqqu panel in the current Miroir frontend.** Use the interactive API docs or call the API directly.
 
 The integration is read-only: it can report configuration, read balances, and read ledger history. It does not trade, send funds, refund transactions, or import ledger history as canonical Miroir trades.

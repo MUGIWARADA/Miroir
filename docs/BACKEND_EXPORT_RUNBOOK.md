@@ -1,5 +1,7 @@
 # Run the exported backend with local PostgreSQL
 
+> Historical runbook for the previous backend. That backend was removed for a clean rebuild. Use the root README and `backend/README.md` for the current setup; this document is preserved for reference, not as executable instructions for the current source tree.
+
 This runbook is for someone who receives a copy of this project and wants to run the backend with PostgreSQL installed on the same computer/server. **No team server or Neon account is required.** The PostgreSQL database running in the coding workspace is only a test database; its data is not included when the source project is copied.
 
 The SQL migration files are the portable database setup. They create the schema on the recipient's own PostgreSQL instance.

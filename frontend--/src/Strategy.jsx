@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from './api';
 
@@ -20,25 +20,20 @@ export default function Strategy() {
   const navigate = useNavigate();
   const [strategy, setStrategy] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchStrategy = async () => {
-      try {
-        const response = await api.getStrategies();
-        if (response.strategies && response.strategies.length > 0) {
-          setStrategy(response.strategies[0]);
-        }
-      } catch (error) {
-        console.error("Failed to fetch strategy:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStrategy();
+    let active = true;
+    api.getStrategies()
+      .then((response) => { if (active) setStrategy(response?.strategies?.[0] || null); })
+      .catch((err) => { if (active) setError(err?.message || 'Could not load the strategy.'); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
-  if (loading) return <div className="p-8 text-text-primary">Loading...</div>;
-  if (!strategy) return <div className="p-8 text-text-secondary">No strategy found.</div>;
+  if (loading) return <div className="p-8 text-text-primary">Loading strategy…</div>;
+  if (error) return <div role="alert" className="p-8 text-adherence-indeterminate">{error}</div>;
+  if (!strategy) return <div className="p-8 text-text-secondary">No strategy is available for this identity.</div>;
 
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto text-text-primary pb-24">

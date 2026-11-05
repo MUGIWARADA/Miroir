@@ -1,5 +1,7 @@
 # Roqqu RAS API contract review
 
+> Historical contract review (2026-11-04) of the previous backend implementation. The security and API-contract findings remain reference material, but its implementation/test status is superseded by `BACKEND_REBUILD_PLAN.md`.
+
 **Reviewed:** 2026-11-04  
 **Source:** [RAS API docs](https://roqqu-api-services.gitbook.io/ras) and the linked endpoint pages.  
 **Project status:** The backend exposes read-only staging routes for status, balances, and ledger history. Contract and route tests use mocked `fetch`; no Roqqu request has been sent and no key is configured in this working copy. No sandbox balances or account state were changed.

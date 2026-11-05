@@ -1,108 +1,108 @@
-# Miroir Workflow Project
+# Miroir
 
-This folder is an isolated working copy of the current Miroir frontend and backend. The original Google Drive source files have not been changed.
+Miroir reviews trade-execution evidence against a strategy. This repository snapshot uses the current `frontend--/` app and a clean, provider-neutral backend rebuild. The visual design has not been redesigned; frontend changes wire existing screens to real API data and add the minimal sign-in/account-linking flow needed for per-user Roqqu access.
 
-## Product scope
+## Product and safety scope
 
-- Manual trade entry is independently usable and remains available without an exchange connection.
-- The current workspace is a **demo**: creating one seeds sample trades and saved reviews, alongside any trades you enter manually.
-- Reviews use the backend's deterministic Python scorer. Decision Quality is not profitability; missing evidence is `cannot_assess`, not a zero or a breach.
-- The backend has read-only Roqqu RAS staging routes for configuration status, balances, and ledger history. An authorized live staging balance check succeeded (HTTP 200; 20 assets); the key was not saved in project files. History was not live-tested. RAS ledger history is supplemental data, not auto-imported as canonical trade fills; trading, sending, refunding, and account mutations remain out of scope.
-- Development uses local PGlite by default. The chosen demo deployment target is server-local PostgreSQL. Neon, if used later, is a separate environment—not a synchronized backup or failover.
+- Deterministic rule evaluation is authoritative. Missing evidence is `cannot_assess`, not a zero or a breach.
+- Profit and Loss (P&L) and Decision Quality remain separate metrics.
+- Demo sessions are clearly labelled and seeded with sample trades/reviews. Mock data is intentional and remains available through the same API.
+- Manual trade creation is supported by the backend API. The current `frontend--/` snapshot has no manual-trade form. **Open product decision:** decide whether to add a manual trade-entry window for recording trades. This means logging trades independently; it does not imply live order execution or trading integration. Roqqu remains read-only.
+- Roqqu RAS is read-only: balances and wallet-ledger history only. Ledger history is supplemental and is not imported as a canonical trade fill. No Roqqu trade/write endpoints are used.
+- User accounts are self-managed email/password accounts with scrypt-hashed passwords, verified-email links, rate-limited auth endpoints, and opaque server sessions stored as hashes. Email verification uses a provider-neutral SMTP adapter; local development can print a short-lived verification link to the API log.
+- A per-user Roqqu connection is bound to that user's **verified Miroir email**. The Roqqu staging key is one backend-only merchant credential; it never reaches the browser. The server only requests data for the authenticated user's verified email.
+- Refresh is on demand. Add polling only after Roqqu's current allowed interval/rate limits are confirmed; no streaming feed is assumed.
+- AI explanation has a `not_configured` adapter placeholder. It may provide bounded explanatory text only and cannot change deterministic scores. AI Strategy Chat is out of scope.
+- Hosting-provider-specific deployment files are deferred until a target is selected.
 
 ## Project layout
 
 ```text
-frontend/                  React + Vite application
-backend/                   Fastify API, PostgreSQL/PGlite migrations, Python scorer
-.github/workflows/ci.yml   Root workflow for frontend + backend checks
-docs/FRONTEND_BACKEND_AUDIT.md
+frontend--/                 React + Vite application
+backend/                    Fastify API, mock/PostgreSQL stores, migrations, scoring, auth, Roqqu read adapter
+.github/workflows/ci.yml    CI for the current frontend and backend
+
+docs/                       Preserved project docs and rebuild notes
 ```
 
-Both npm lockfiles are retained. Install dependencies with `npm ci`; do not check in `node_modules`, `.venv`, build output, runtime databases, or environment credentials.
+Older audit/runbook docs in `docs/` describe previous backend copies and are retained for reference; current instructions are in this README and `backend/README.md`.
 
-## Local quick start
+## Requirements
 
-Requirements: Node.js 22+, npm, Python 3.11+. The commands below use a Linux/macOS shell; Windows PowerShell equivalents for PostgreSQL, Python virtual environments, and service startup are in the [backend export runbook](docs/BACKEND_EXPORT_RUNBOOK.md).
+- Node.js 22+ and npm
+- PostgreSQL for persistent mode (or Docker Compose to run local PostgreSQL)
 
-### 1. Install and initialize the backend
+## Quick start — mock mode
 
-From `backend/`:
+Run the API in one terminal:
 
 ```bash
+cd backend
 npm ci
-python3 -m venv .venv
-.venv/bin/pip install -r scoring/requirements.txt -r scoring/requirements-dev.txt
-cp .env.example .env    # optional; defaults are local-only
-npm run migrate
+cp .env.example .env       # optional; DATA_MODE defaults to mock
+npm run dev
 ```
 
-### 2. Start the scoring service and API
-
-Use separate terminals from `backend/`:
+Run the frontend in a second terminal:
 
 ```bash
-.venv/bin/python -m uvicorn scoring.app.main:app --host 0.0.0.0 --port 8001
-```
-
-```bash
-npm run dev:api
-```
-
-The API defaults to `http://localhost:8080`. Check `GET /health`; OpenAPI docs are at `/docs`.
-
-### 3. Start the frontend
-
-From `frontend/`:
-
-```bash
+cd frontend--
 npm ci
 npm run dev
 ```
 
-Vite serves the UI on `http://localhost:5173` and proxies `/v1` to `http://127.0.0.1:8080`. Set `VITE_API_PROXY_TARGET` if the API is listening elsewhere. `VITE_API_BASE_URL` can point a built frontend at a public API origin; it must not contain credentials.
+Open `http://localhost:5173`. Vite proxies `/v1` and `/health` to `http://127.0.0.1:8080`. Demo sessions use the same API contract in both storage modes. Mock data lives in the backend and is labelled in the UI; the browser does not silently fall back if the API is unavailable. Account registration/sign-in requires `DATA_MODE=postgres`; mock mode remains available through **Start Demo**.
 
-The default API mode is the real backend. To deliberately use the existing fixture adapter during UI-only work, set `VITE_API_MODE=mock`. Mock mode is not a Roqqu connection and does not persist real trades.
+## Quick start — local PostgreSQL and user accounts
 
-The API's local PGlite data is stored under `backend/.data/` and is ignored by Git. To reset local demo data, stop the API and remove that directory; doing so is destructive to that local database.
+From `backend/`, start the local PostgreSQL service and copy the environment template:
 
-## Export and run the backend elsewhere
+```bash
+docker compose -f compose.yaml up -d postgres
+cp .env.example .env
+```
 
-The code-container PostgreSQL database is for verification only; its live data is not included in an export. A recipient runs PostgreSQL on their own machine/server, applies the checked-in migrations, then starts the API and scorer. Step-by-step instructions are in [`docs/BACKEND_EXPORT_RUNBOOK.md`](docs/BACKEND_EXPORT_RUNBOOK.md). No team server or Neon account is required to prepare or export the project.
+Set `DATA_MODE=postgres` in `backend/.env` (the template database URL matches the local Compose service), then run:
 
-## API integration notes
+```bash
+npm ci
+npm run db:migrate
+npm run dev
+```
 
-- Demo session: `POST /v1/demo/session` returns a bearer token and the current strategy-version ID, and sets an HttpOnly same-site session cookie as a fallback when an embedded browser cannot attach its bearer header. The frontend continues to send the bearer token when available. An optional anonymous identity fallback can be enabled only for an isolated preview (`DEMO_AUTH_FALLBACK_ENABLED=true`); it is disabled by default and rejected in production.
-- Trade save: `POST /v1/trades`.
-- Review: bodyless `POST /v1/trades/:id/review`. Do not send an empty JSON body or a `Content-Type: application/json` header—the backend returns `400 BAD_REQUEST` for a zero-byte JSON request. The frontend only adds the JSON header when it sends a body.
-- Trade list/review history: `GET /v1/trades`; opening a review uses the idempotent review endpoint.
-- CSV import: `POST /v1/trade-imports/preview`, then confirm with `POST /v1/trade-imports/:id/commit`. The frontend displays backend validation details before commit.
-- Dashboard stats and rule-adherence progress are returned by `GET /v1/stats?currency=USD` and `GET /v1/progress` respectively.
-- Read-only Roqqu RAS routes are `GET /v1/integrations/roqqu/status`, `/balances`, and `/history`. They require a backend-only `ROQQU_STAGING_API_KEY`; balances/history call the official RAS host and return RAS data without mapping it into Miroir trades. The status endpoint only reports whether a key is configured; it does not make a network request. See the [Roqqu API quick start](docs/ROQQU_API_QUICKSTART.md) for step-by-step Swagger and curl examples.
+Start `frontend--/` as shown above. PostgreSQL demo records and user accounts persist between API restarts. In local development, `EMAIL_DELIVERY_MODE=console` prints a short-lived verification link in the backend log. Open **Create Account**, register using the email associated with the Roqqu account, then open that link to verify and sign in.
+
+For hosted environments, set `EMAIL_DELIVERY_MODE=smtp` and provide SMTP settings (`SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`) through the host's secret manager. The implementation is SMTP-based and does not depend on a hosting provider. The sample Compose password is local-development-only; do not reuse it for a hosted database. Removing the `miroir-postgres` volume permanently deletes its data.
+
+For an existing local PostgreSQL install, set `DATABASE_URL`, apply `npm run db:migrate`, and use `DATA_MODE=postgres`.
+
+## API contract
+
+- `POST /v1/demo/session`
+- `POST /v1/auth/register`, `/login`, `/verify`, `/verification/resend`, `/logout`
+- `GET /v1/me`, `GET /v1/strategies`
+- `GET /v1/trades`, `POST /v1/trades`
+- Bodyless `POST /v1/trades/:id/review`
+- `GET /v1/stats?currency=USD`, `GET /v1/progress`
+- `GET /v1/roqqu/status`, `POST /v1/roqqu/connect`, `POST /v1/roqqu/disconnect`, `GET /v1/roqqu/balances`, `GET /v1/roqqu/history`
+
+Errors use `{ "error": { "code", "message" } }`. The review request has no body; do not send `Content-Type: application/json` for it. The frontend only adds JSON content-type when a request body exists.
+
+## Roqqu staging
+
+To enable **staging only**, add `ROQQU_STAGING_API_KEY` privately to `backend/.env`; do not put it in the frontend or commit it. Sign in with a Miroir account whose verified email matches the Roqqu account, then use the Accounts screen to connect and refresh. The API key remains server-side, while each read is scoped to the authenticated user's verified email. No account email is accepted from the browser, and no ledger activity is converted into Miroir trades. No live request was made by this rebuilt copy; the key is not present in the workspace. Historical live staging tests belong to the removed implementation and are not evidence for this new adapter.
 
 ## Checks
 
-Frontend, from `frontend/`:
-
 ```bash
-npm ci
-npm run lint
-npm run build
+cd frontend-- && npm ci && npm run lint && npm run build
+cd ../backend && npm ci && npm test && npm run lint && npm run build
 ```
 
-Backend, from `backend/`:
+CI runs a PostgreSQL service for persistence/auth tests. The current sandbox has no PostgreSQL server or Docker executable, so its PostgreSQL integration test is skipped locally and must be verified in CI or on a machine with PostgreSQL/Docker.
 
-```bash
-npm ci
-npm test
-npm run typecheck
-npm run lint
-npm run build
-.venv/bin/python -m pytest scoring/tests -q
-```
+## Environment and deployment
 
-## Deployment cautions
+Configure `PORT`, `HOST`, `DATA_MODE`, `DATABASE_URL`, `CORS_ORIGIN`, `APP_BASE_URL`, email delivery, and the optional staging key through environment variables. Keep secrets out of source control and the frontend bundle. Host-specific deployment files will be added only after a target is selected.
 
-The API enforces a persistent PostgreSQL runtime URL, a direct migration URL, a unique scoring-service token, and exact CORS origins in production. Provide those values only through the deployment secret manager. PGlite is for local development/testing and is not a persistent production failover. Confirm durable database storage and backups with the server operator before deploying.
-
-No GitHub remote or deployment was configured as part of this local working-copy task. The existing files under the current Drive source are unchanged.
+No GitHub push, hosted CI run, or deployment was performed in this workspace. Review changes locally, then use GitHub Desktop to commit and push when ready.

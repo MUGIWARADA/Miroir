@@ -1,9 +1,11 @@
-# Miroir Frontend + Backend Audit
+# Miroir Frontend + Backend Audit — Historical Archive
+
+> **Do not use this report as the current implementation contract.** It records a superseded local backend/frontend copy from 2026-11-04. That backend was removed and rebuilt; the current UI was refreshed from public `main` at `4af930f` and integrated against the rebuilt API afterward. Earlier claims below about Python scoring, PGlite, CSV routes/UI, endpoint counts, review status codes, and file paths may not apply to the current project. Use `BACKEND_REBUILD_PLAN.md` for the current state.
 
 **Audit date:** 2026-11-04  
-**Working copy:** `/home/user/miroir-workflow/`  
-**Current Drive Frontend:** `Frontend`, folder ID `1zo_gbn7h_BWhrNBg2UcmXIOny1QJ1wt0`  
-**Status:** Local frontend/API integration is implemented and verified against the included backend. The original Drive source and `/home/user/miroir-backend/` remain unchanged. An earlier audit draft is preserved as `INITIAL_FRONTEND_BACKEND_AUDIT.md` for history; use this report for current status.
+**Historical working copy:** `/home/user/miroir-workflow/`  
+**Historical source:** Drive Frontend folder `1zo_gbn7h_BWhrNBg2UcmXIOny1QJ1wt0`  
+**Status:** Preserved for traceability only. No Drive source was edited by that historical audit.
 
 ## Executive summary
 

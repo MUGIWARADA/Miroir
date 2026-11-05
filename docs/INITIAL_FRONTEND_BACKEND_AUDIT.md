@@ -1,5 +1,7 @@
 # Miroir Frontend + Backend Audit
 
+> Historical initial audit (2026-11-04) of the previous project snapshot. The backend described here was removed for a clean rebuild; see `BACKEND_REBUILD_PLAN.md` for current status.
+
 **Audit date:** 2026-11-04  
 **Scope:** Google Drive frontend snapshot and local backend source under `/home/user/miroir-backend`  
 **State:** Findings are from local inspection and tests. No source files or documents were changed in Google Drive or the backend repository. No documents were deleted. An isolated frontend audit copy has three uncommitted proof-of-concept changes noted below; they have not been copied back to Drive.

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, RadialBarChart, RadialBar, PolarAngleAxis } from 'recharts';
 import { api } from './api';
@@ -8,24 +8,28 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isConnected, setIsConnected] = useState(false);
+  const [identity, setIdentity] = useState(null);
+  const [accountStatus, setAccountStatus] = useState(null);
+  const [loadError, setLoadError] = useState('');
 
   useEffect(() => {
-    const linked = localStorage.getItem('account_linked') === 'true';
-    setIsConnected(linked);
-
+    let active = true;
     const fetchData = async () => {
       try {
-        const [statsData, progressData] = await Promise.all([api.getStats('USD'), api.getProgress()]);
+        const [identityData, statsData, progressData, statusData] = await Promise.all([
+          api.getIdentity(), api.getStats('USD'), api.getProgress(), api.getRoqquStatus()
+        ]);
+        if (!active) return;
+        setIdentity(identityData.identity);
         setStats(statsData.stats);
-        setProgress(progressData.progress.versions.length > 0 ? progressData.progress.versions[0] : null);
+        setProgress(progressData?.progress?.versions?.[0] || null);
+        setAccountStatus(statusData);
       } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+        if (active) setLoadError(err?.message || 'Could not load dashboard data.');
+      } finally { if (active) setLoading(false); }
     };
     fetchData();
+    return () => { active = false; };
   }, []);
 
   if (loading) return <div className="p-8 text-text-primary flex h-screen items-center justify-center">Loading...</div>;
@@ -58,24 +62,24 @@ export default function Dashboard() {
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-1 text-white">Dashboard</h1>
         </div>
         
-        {!isConnected ? (
-          <button 
-            onClick={() => navigate('/accounts')}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary text-white font-semibold text-sm shadow-lg shadow-brand-primary/25 hover:opacity-90 transition-all flex items-center gap-2 shrink-0"
-          >
-            <span className="material-symbols-outlined text-[18px]">add_link</span>
-            Connect
+        {identity?.mode === 'demo' ? (
+          <span className="flex items-center gap-2 bg-surface-elevated border border-border-subtle px-4 py-2 rounded-full">
+            <span className="w-2 h-2 rounded-full bg-adherence-indeterminate"></span>
+            <span className="text-xs text-text-secondary">Sample Data</span>
+          </span>
+        ) : accountStatus?.connected ? (
+          <button onClick={() => navigate('/accounts')} className="flex items-center gap-2 bg-surface-elevated border border-border-subtle px-4 py-2 rounded-full hover:border-brand-primary transition-all">
+            <span className="w-2 h-2 rounded-full bg-adherence-followed"></span>
+            <span className="text-xs text-text-secondary">Roqqu · Read-only</span>
           </button>
         ) : (
-          <div 
-            onClick={() => navigate('/profile')}
-            className="flex items-center gap-2 bg-surface-elevated border border-border-subtle px-4 py-2 rounded-full cursor-pointer hover:border-brand-primary transition-all"
-          >
-            <span className="w-2 h-2 rounded-full bg-adherence-followed"></span>
-            <span className="text-xs font-mono text-text-secondary">ID: c7549069...6a3e</span>
-          </div>
+          <button onClick={() => navigate('/accounts')} className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary text-white font-semibold text-sm shadow-lg shadow-brand-primary/25 hover:opacity-90 transition-all flex items-center gap-2 shrink-0">
+            <span className="material-symbols-outlined text-[18px]">add_link</span>Accounts
+          </button>
         )}
       </header>
+
+      {loadError && <div role="alert" className="glass-card border border-adherence-indeterminate/30 p-4 mb-6 text-sm text-adherence-indeterminate">{loadError}</div>}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div className="glass-card p-6 relative overflow-hidden group hover:border-brand-primary/30 transition-colors">
