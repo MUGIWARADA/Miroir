@@ -8,8 +8,12 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    const linked = localStorage.getItem('account_linked') === 'true';
+    setIsConnected(linked);
+
     const fetchData = async () => {
       try {
         const [statsData, progressData] = await Promise.all([api.getStats('USD'), api.getProgress()]);
@@ -27,16 +31,19 @@ export default function Dashboard() {
   if (loading) return <div className="p-8 text-text-primary flex h-screen items-center justify-center">Loading...</div>;
 
   const netPnl = stats?.net_realized_pnl || 0;
+  const winRate = stats?.win_rate || 0;
+  const profitFactor = stats?.profit_factor || 0;
+  const expectancy = stats?.expectancy || 0;
   const sampleSize = stats?.sample_size || 0;
+  
   const dqScore = progress?.average_decision_quality_score;
-  const hasDqScore = dqScore !== null && dqScore !== undefined;
+  const hasDqScore = dqScore !== null && dqScore !== undefined && sampleSize > 0;
   const displayDqScore = hasDqScore ? Math.round(dqScore) : 0;
 
   const pnlData = stats?.cumulative_realized_pnl_curve?.map(point => ({
     date: new Date(point.closed_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
     pnl: point.cumulative_realized_pnl
   })) || [];
-  
   if (pnlData.length === 0) pnlData.push({ date: 'Today', pnl: 0 });
 
   const scoreData = [{ name: 'Score', value: hasDqScore ? displayDqScore : 0, fill: 'url(#gradient)' }];
@@ -48,20 +55,30 @@ export default function Dashboard() {
 
       <header className="flex flex-row justify-between items-center mb-8 gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-1 text-white">Overview</h1>
-          <p className="text-sm text-text-secondary hidden md:block">Execution quality across your confirmed strategy.</p>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-1 text-white">Dashboard</h1>
         </div>
         
-        {/* Fix: Removed fake connected sandbox. Added clear sample data label. */}
-        <div className="flex items-center gap-2 bg-brand-primary/10 border border-brand-primary/20 px-3 py-1.5 rounded-full">
-          <span className="w-2 h-2 rounded-full bg-brand-primary"></span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-brand-primary">Sample Data</span>
-        </div>
+        {!isConnected ? (
+          <button 
+            onClick={() => navigate('/accounts')}
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-secondary text-white font-semibold text-sm shadow-lg shadow-brand-primary/25 hover:opacity-90 transition-all flex items-center gap-2 shrink-0"
+          >
+            <span className="material-symbols-outlined text-[18px]">add_link</span>
+            Connect
+          </button>
+        ) : (
+          <div 
+            onClick={() => navigate('/profile')}
+            className="flex items-center gap-2 bg-surface-elevated border border-border-subtle px-4 py-2 rounded-full cursor-pointer hover:border-brand-primary transition-all"
+          >
+            <span className="w-2 h-2 rounded-full bg-adherence-followed"></span>
+            <span className="text-xs font-mono text-text-secondary">ID: c7549069...6a3e</span>
+          </div>
+        )}
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div className="glass-card p-6 relative overflow-hidden group hover:border-brand-primary/30 transition-colors">
-          <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-primary/10 rounded-full blur-3xl pointer-events-none group-hover:bg-brand-primary/20 transition-colors"></div>
           <h2 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-text-secondary mb-6 flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px] text-brand-primary">psychology</span>
             Decision Quality
@@ -81,26 +98,18 @@ export default function Dashboard() {
                 </RadialBarChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                {/* Fix: Null scores do not become 0. */}
                 {hasDqScore ? (
                   <>
                     <span className="text-3xl font-bold tracking-tight tabular-nums text-white">{displayDqScore}</span>
                     <span className="text-[10px] text-text-tertiary">/100</span>
                   </>
                 ) : (
-                  <span className="text-[10px] font-semibold text-text-secondary text-center px-2">Not enough evidence</span>
+                  <span className="text-[10px] font-semibold text-text-secondary text-center px-2">No data</span>
                 )}
               </div>
             </div>
             <div>
-              {hasDqScore ? (
-                <div className={`font-semibold text-sm mb-1 flex items-center gap-1 ${displayDqScore >= 75 ? 'text-adherence-followed' : displayDqScore >= 50 ? 'text-adherence-indeterminate' : 'text-adherence-broken'}`}>
-                  {displayDqScore >= 75 ? 'Disciplined' : displayDqScore >= 50 ? 'Improving' : 'Needs Work'}
-                </div>
-              ) : (
-                <div className="font-semibold text-sm mb-1 text-text-secondary">Awaiting Data</div>
-              )}
-              <p className="text-xs text-text-secondary leading-relaxed max-w-[120px]">Keep logging evidence to improve your score.</p>
+              <p className="text-xs text-text-secondary leading-relaxed max-w-[120px]">Keep logging evidence to build your score.</p>
             </div>
           </div>
         </div>
@@ -114,23 +123,21 @@ export default function Dashboard() {
             <span className="text-[10px] text-text-tertiary bg-[#0B0F19]/50 px-2 py-1 rounded border border-border-subtle">Trades: {sampleSize}</span>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-[#0B0F19]/40 rounded-xl p-4 border border-border-subtle/50 hover:bg-[#0B0F19]/80 transition-colors">
+            <div className="bg-[#0B0F19]/40 rounded-xl p-4 border border-border-subtle/50">
               <p className="text-[10px] text-text-secondary mb-1 uppercase tracking-wider">Net P&L</p>
-              <p className={`text-xl font-bold tabular-nums ${netPnl >= 0 ? 'text-adherence-followed' : 'text-adherence-broken'}`}>
-                {netPnl >= 0 ? '+' : ''}${netPnl.toFixed(2)}
-              </p>
+              <p className="text-xl font-bold tabular-nums text-white">${netPnl.toFixed(2)}</p>
             </div>
-            <div className="bg-[#0B0F19]/40 rounded-xl p-4 border border-border-subtle/50 hover:bg-[#0B0F19]/80 transition-colors">
+            <div className="bg-[#0B0F19]/40 rounded-xl p-4 border border-border-subtle/50">
               <p className="text-[10px] text-text-secondary mb-1 uppercase tracking-wider">Win Rate</p>
-              <p className="text-xl font-bold tabular-nums text-white">{stats.win_rate === null ? '—' : `${stats.win_rate.toFixed(1)}%`}</p>
+              <p className="text-xl font-bold tabular-nums text-white">{winRate.toFixed(1)}%</p>
             </div>
-            <div className="bg-[#0B0F19]/40 rounded-xl p-4 border border-border-subtle/50 hover:bg-[#0B0F19]/80 transition-colors">
+            <div className="bg-[#0B0F19]/40 rounded-xl p-4 border border-border-subtle/50">
               <p className="text-[10px] text-text-secondary mb-1 uppercase tracking-wider">Profit Factor</p>
-              <p className="text-xl font-bold tabular-nums text-white">{stats.profit_factor === null ? '—' : stats.profit_factor.toFixed(2)}</p>
+              <p className="text-xl font-bold tabular-nums text-white">{profitFactor.toFixed(2)}</p>
             </div>
-            <div className="bg-[#0B0F19]/40 rounded-xl p-4 border border-border-subtle/50 hover:bg-[#0B0F19]/80 transition-colors">
+            <div className="bg-[#0B0F19]/40 rounded-xl p-4 border border-border-subtle/50">
               <p className="text-[10px] text-text-secondary mb-1 uppercase tracking-wider">Expectancy</p>
-              <p className="text-xl font-bold tabular-nums text-white">{stats.expectancy === null ? '—' : `$${stats.expectancy.toFixed(2)}`}</p>
+              <p className="text-xl font-bold tabular-nums text-white">${expectancy.toFixed(2)}</p>
             </div>
           </div>
         </div>
@@ -138,7 +145,6 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-8 glass-card p-6 relative overflow-hidden">
-           <div className="absolute top-0 right-0 w-64 h-64 bg-brand-secondary/5 rounded-full blur-2xl pointer-events-none"></div>
           <h2 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-text-secondary mb-6 flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px] text-brand-secondary">trending_up</span>
             Cumulative Realized P&L
@@ -162,42 +168,24 @@ export default function Dashboard() {
         </div>
 
         <div className="lg:col-span-4 glass-card p-6 flex flex-col justify-between relative overflow-hidden">
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-brand-tertiary/5 rounded-full blur-2xl pointer-events-none"></div>
           <div>
             <h2 className="text-[11px] font-semibold uppercase tracking-[0.1em] text-text-secondary mb-6 flex items-center gap-2">
               <span className="material-symbols-outlined text-[16px] text-brand-tertiary">monitoring</span>
-              Progress Snapshot
+              Snapshot
             </h2>
-            {progress ? (
-              <div className="space-y-6 relative z-10">
-                <div>
-                  <div className="flex justify-between items-end mb-2">
-                    <span className="text-xs text-text-secondary">Avg Quality Score</span>
-                    <span className="text-2xl font-bold tabular-nums text-white">{progress.average_decision_quality_score === null ? '—' : Math.round(progress.average_decision_quality_score)}</span>
-                  </div>
-                  <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-brand-primary to-brand-secondary" style={{ width: `${progress.average_decision_quality_score || 0}%` }}></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between items-end mb-2">
-                    <span className="text-xs text-text-secondary">Coverage</span>
-                    <span className="text-sm font-semibold text-white">{Math.round(progress.average_coverage_pct || 0)}%</span>
-                  </div>
-                  <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
-                    <div className="h-full bg-brand-tertiary" style={{ width: `${progress.average_coverage_pct || 0}%` }}></div>
-                  </div>
-                </div>
+            <div className="space-y-4">
+              <div className="flex justify-between items-end">
+                <span className="text-xs text-text-secondary">Coverage</span>
+                <span className="text-sm font-semibold text-white">{Math.round(progress?.average_coverage_pct || 0)}%</span>
               </div>
-            ) : (
-               <p className="text-sm text-text-secondary">Log trades to generate progress insights.</p>
-            )}
+              <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                <div className="h-full bg-brand-tertiary" style={{ width: `${progress?.average_coverage_pct || 0}%` }}></div>
+              </div>
+            </div>
           </div>
-          
-          <div className="mt-8 pt-4 border-t border-border-subtle relative z-10">
+          <div className="mt-8 pt-4 border-t border-border-subtle">
             <button onClick={() => navigate('/reviews')} className="w-full py-2.5 rounded-lg bg-surface-elevated border border-border-subtle text-xs font-semibold hover:border-brand-primary hover:text-brand-primary transition-all flex items-center justify-center gap-2">
-              View All Reviews
-              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+              View All Reviews <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
             </button>
           </div>
         </div>

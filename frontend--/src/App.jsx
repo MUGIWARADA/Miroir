@@ -26,16 +26,16 @@ export function Logo({ size = "md" }) {
 
 function AppShell({ children }) {
   const location = useLocation();
+  
   const navItems = [
-    { path: '/plan', label: 'Plan', icon: 'psychology' },
-    { path: '/accounts', label: 'Accounts', icon: 'account_balance_wallet' },
-    { path: '/dashboard', label: 'Dashboard', icon: 'query_stats' },
     { path: '/reviews', label: 'Reviews', icon: 'history_edu' },
+    { path: '/dashboard', label: 'Dashboard', icon: 'query_stats' },
     { path: '/profile', label: 'Profile', icon: 'person' },
   ];
 
   return (
     <div className="flex h-screen bg-canvas text-text-primary font-sans relative">
+      {/* Desktop Sidebar */}
       <aside className="hidden md:flex flex-col w-64 bg-surface-card border-r border-border-subtle p-4 shrink-0 backdrop-blur-xl z-40">
         <div className="mb-8 px-2 mt-2"><Logo /></div>
         <nav className="flex flex-col gap-2">
@@ -50,6 +50,7 @@ function AppShell({ children }) {
 
       <main className="flex-1 overflow-y-auto pb-24 md:pb-0">{children}</main>
 
+      {/* Mobile Bottom Nav */}
       <nav className="md:hidden fixed bottom-0 w-full bg-[#0B0F19] border-t border-border-subtle flex justify-around items-end pb-safe pt-2 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
         {navItems.map((item) => {
           const isActive = location.pathname.startsWith(item.path);
