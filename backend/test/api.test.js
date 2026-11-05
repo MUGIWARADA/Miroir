@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createApp } from '../src/app.js';
 import { MockStore } from '../src/mock-store.js';
+import { createAiAdapter, createOpenRouterProvider } from '../src/ai-adapter.js';
 
 const config = { corsOrigins: ['http://localhost:5173'], nodeEnv: 'test', dataMode: 'mock' };
 
@@ -75,11 +76,31 @@ test('manual trade creation validates input and then returns a stored trade', as
   await withApp(async (app) => {
     const session = (await app.inject({ method: 'POST', url: '/v1/demo/session' })).json();
     const headers = { authorization: `Bearer ${session.token}` };
+    const strats = (await app.inject({ method: 'GET', url: '/v1/strategies', headers })).json().strategies;
+    const stratId = strats[0].id;
+
     const bad = await app.inject({ method: 'POST', url: '/v1/trades', headers, payload: { direction: 'long' } });
     assert.equal(bad.statusCode, 400);
-    const good = await app.inject({ method: 'POST', url: '/v1/trades', headers, payload: { symbol: 'xbt/usdt', direction: 'long', quantity: 0.1, entry_price: 50000 } });
+
+    const noStrat = await app.inject({ method: 'POST', url: '/v1/trades', headers, payload: { symbol: 'xbt/usdt', direction: 'long' } });
+    assert.equal(noStrat.statusCode, 400);
+    assert.equal(noStrat.json().error.code, 'STRATEGY_REQUIRED');
+
+    const good = await app.inject({
+      method: 'POST',
+      url: '/v1/trades',
+      headers,
+      payload: {
+        symbol: 'xbt/usdt',
+        direction: 'long',
+        quantity: 0.1,
+        entry_price: 50000,
+        strategy_id: stratId
+      }
+    });
     assert.equal(good.statusCode, 201);
     assert.equal(good.json().trade.symbol, 'XBT/USDT');
+    assert.equal(good.json().trade.strategy_id, stratId);
   });
 });
 
@@ -89,4 +110,56 @@ test('self-managed registration requires persistent PostgreSQL', async () => {
     assert.equal(response.statusCode, 503);
     assert.equal(response.json().error.code, 'AUTH_REQUIRES_POSTGRES');
   });
+});
+
+test('POST /v1/trades/:id/review incorporates OpenRouter AI explanation when configured', async () => {
+  const mockFetch = async () => ({
+    ok: true,
+    status: 200,
+    json: async () => ({
+      choices: [{
+        message: {
+          content: JSON.stringify({
+            summary: 'Disciplined trade execution matching confirmed strategy rules.',
+            actions: ['Maintain current position sizing']
+          })
+        }
+      }]
+    })
+  });
+  const customConfig = { ...config, openRouterApiKey: 'test-key', openRouterModel: 'google/gemini-2.0-flash-001' };
+  const customAiAdapter = createAiAdapter(createOpenRouterProvider(customConfig, { fetchFn: mockFetch }));
+  const app = await createApp({ store: new MockStore(), config: customConfig, aiAdapter: customAiAdapter });
+  try {
+    const session = (await app.inject({ method: 'POST', url: '/v1/demo/session' })).json();
+    const headers = { authorization: `Bearer ${session.token}` };
+    const strats = (await app.inject({ method: 'GET', url: '/v1/strategies', headers })).json().strategies;
+    const stratId = strats[0].id;
+
+    // Create a new unreviewed trade
+    const tradeRes = await app.inject({
+      method: 'POST',
+      url: '/v1/trades',
+      headers,
+      payload: {
+        symbol: 'SOL/USDT',
+        direction: 'long',
+        quantity: 5,
+        entry_price: 150,
+        risk_amount: 50,
+        strategy_id: stratId
+      }
+    });
+    const tradeId = tradeRes.json().trade.id;
+
+    const reviewRes = await app.inject({ method: 'POST', url: `/v1/trades/${tradeId}/review`, headers });
+    assert.equal(reviewRes.statusCode, 200);
+    assert.equal(reviewRes.json().cached, false);
+    const result = reviewRes.json().review.result;
+    assert.equal(result.ai_explanation.status, 'available');
+    assert.equal(result.ai_explanation.summary, 'Disciplined trade execution matching confirmed strategy rules.');
+    assert.deepEqual(result.ai_explanation.actions, ['Maintain current position sizing']);
+  } finally {
+    await app.close();
+  }
 });

@@ -52,11 +52,46 @@ export const api = {
   },
   getIdentity: () => apiRequest('/v1/me'),
   getStrategies: () => apiRequest('/v1/strategies'),
+  getStrategy: (id) => apiRequest(`/v1/strategies/${encodeURIComponent(id)}`),
+  createStrategy: (payload) => apiRequest('/v1/strategies', { method: 'POST', body: JSON.stringify(payload) }),
+  updateStrategyDraft: (id, payload) => apiRequest(`/v1/strategies/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  confirmStrategyVersion: (id, payload = {}) => apiRequest(`/v1/strategies/${encodeURIComponent(id)}/confirm`, { method: 'POST', body: JSON.stringify(payload) }),
+  validateStrategy: (id) => apiRequest(`/v1/strategies/${encodeURIComponent(id)}/validation`),
+  explainStrategyValidation: (id) => apiRequest(`/v1/strategies/${encodeURIComponent(id)}/explain-validation`, { method: 'POST' }),
+  submitStrategyForReview: (id) => apiRequest(`/v1/strategies/${encodeURIComponent(id)}/submit-review`, { method: 'POST' }),
+  archiveStrategy: (id) => apiRequest(`/v1/strategies/${encodeURIComponent(id)}/archive`, { method: 'POST' }),
+  getStrategyVersions: (id) => apiRequest(`/v1/strategies/${encodeURIComponent(id)}/versions`),
+  getStrategyVersion: (id, versionId) => apiRequest(`/v1/strategies/${encodeURIComponent(id)}/versions/${encodeURIComponent(versionId)}`),
+  createConversation: (payload) => apiRequest('/v1/ai/conversations', { method: 'POST', body: JSON.stringify(payload) }),
+  getConversations: (limit = 20) => apiRequest(`/v1/ai/conversations?limit=${encodeURIComponent(limit)}`),
+  getConversation: (id) => apiRequest(`/v1/ai/conversations/${encodeURIComponent(id)}`),
+  createConversationMessage: (conversationId, payload) => apiRequest(`/v1/ai/conversations/${encodeURIComponent(conversationId)}/messages`, { method: 'POST', body: JSON.stringify(payload) }),
+  getConversationMessages: (conversationId, limit = 50) => apiRequest(`/v1/ai/conversations/${encodeURIComponent(conversationId)}/messages?limit=${encodeURIComponent(limit)}`),
+  executeCompanionTurn: (conversationId, payload) => apiRequest(`/v1/ai/conversations/${encodeURIComponent(conversationId)}/companion-turn`, { method: 'POST', body: JSON.stringify(payload) }),
+  executeProgressTurn: (conversationId, payload) => apiRequest(`/v1/ai/conversations/${encodeURIComponent(conversationId)}/progress-turn`, { method: 'POST', body: JSON.stringify(payload) }),
+  getConversationStrategyState: (conversationId) => apiRequest(`/v1/ai/conversations/${encodeURIComponent(conversationId)}/strategy-state`),
   getTrades: () => apiRequest('/v1/trades'),
   createTrade: (payload) => apiRequest('/v1/trades', { method: 'POST', body: JSON.stringify(payload) }),
-  requestReview: (tradeId) => apiRequest(`/v1/trades/${encodeURIComponent(tradeId)}/review`, { method: 'POST' }),
+  requestReview: (tradeId, { re_evaluate = false } = {}) => {
+    const q = re_evaluate ? '?re_evaluate=true' : '';
+    return apiRequest(`/v1/trades/${encodeURIComponent(tradeId)}/review${q}`, {
+      method: 'POST',
+      body: JSON.stringify({ re_evaluate })
+    });
+  },
+  getReview: (tradeId) => apiRequest(`/v1/trades/${encodeURIComponent(tradeId)}/review`),
   getStats: (currency = 'USD') => apiRequest(`/v1/stats?currency=${encodeURIComponent(currency)}`),
   getProgress: () => apiRequest('/v1/progress'),
+  getPatterns: ({ startDate, endDate, strategyId, strategyVersionId, explain = false } = {}) => {
+    const params = new URLSearchParams();
+    if (startDate) params.set('start_date', startDate);
+    if (endDate) params.set('end_date', endDate);
+    if (strategyId) params.set('strategy_id', strategyId);
+    if (strategyVersionId) params.set('strategy_version_id', strategyVersionId);
+    if (explain) params.set('explain', 'true');
+    const qs = params.toString();
+    return apiRequest(`/v1/intelligence/patterns${qs ? `?${qs}` : ''}`);
+  },
   getRoqquStatus: () => apiRequest('/v1/roqqu/status'),
   connectRoqqu: () => apiRequest('/v1/roqqu/connect', { method: 'POST' }),
   disconnectRoqqu: () => apiRequest('/v1/roqqu/disconnect', { method: 'POST' }),
